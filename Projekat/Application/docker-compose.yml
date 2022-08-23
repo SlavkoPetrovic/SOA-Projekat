@@ -1,0 +1,66 @@
+services:
+    analytics:
+      build: ./analytics
+      image: analytics
+      ports: 
+        - "5003:5003"
+      depends_on:
+        - influxdb
+        - ekuiper
+        - mqtt
+        - manager
+    notifications:
+      container_name: notifications_application
+      build: ./notifications
+      image: notifications
+      ports:
+        - "5011:5011"
+    movie_service:
+      build: ./movie_service
+      image: movie_service
+      ports:
+        - "3000:3000"
+    gateway:
+      build: ./gateway
+      image: gateway
+      restart: always
+      ports:
+        - "5001:5001"
+        - "5002:5002"
+      environment:
+        ASPNETCORE_HTTP_PORT: "https://+:5002"
+        ASPNETCORE_URLS: "http://+:5001"
+        ASPNETCORE_ENVIRONMENT: "Development"
+      depends_on:
+        - "movie_service"
+    ekuiper:
+      container_name: ekuiper
+      image: "lfedge/ekuiper"
+      ports:
+        - "9081:9081"
+      environment:
+        MQTT_SOURCE__DEFAULT__SERVER: "tcp://broker.emqx.io:1883"
+    mqtt:
+      container_name: mqtt
+      image: eclipse-mosquitto
+      restart: always
+      expose:
+        - "1883"
+        - "9001"
+      ports:
+        - "1883:1883"
+        - "9001:9001"
+    manager:
+      image: emqx/ekuiper-manager
+      container_name: manager
+      ports:
+        - 9082:9082
+    influxdb:
+      image: influxdb
+      environment:
+        - INFLUXDB_ADMIN_ENABLED=true
+        - INFLUXDB_USERNAME=admin
+        - INFLUXDB_PASSWORD=admin123
+      ports:
+        - "8086:8086"
+    

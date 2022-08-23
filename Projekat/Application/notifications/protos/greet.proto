@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package greet;
+
+service Greeter {
+    rpc Notify(Request) returns (Reply);
+}
+
+message Request{
+    string Title =1;
+    string Distributor = 2;
+    int32 Budget = 3;
+    int32 OpeningWeekendNorthAmerica = 4;
+    int32 NorthAmerica = 5;
+    int32 OtherTerritories = 6;
+    int32 Worldwide = 7;
+}
+
+message Reply{
+    string text = 1;
+}
